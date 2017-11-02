@@ -1,0 +1,7 @@
+base
+plyr
+dplyr
+knitr
+ggplot2
+gridExtra
+bindrcpp
