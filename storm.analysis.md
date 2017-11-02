@@ -1,6 +1,8 @@
-# Reproducible Research: Peer Assessment 2
+# Health and Economic Impact of Storms in the US
 
-# Health and Economic Impact of Weather Events in the US
+---
+
+# Introduction
 
 Storms and other severe weather events can cause both public health and economic
 problems for communities and municipalities. Many severe events can result in
@@ -11,6 +13,31 @@ This project involves exploring the U.S. National Oceanic and Atmospheric
 Administration's (NOAA) storm database. This database tracks characteristics of major
 storms and weather events in the United States, including when and where they occur, as
 well as estimates of any fatalities, injuries, and property damage.
+
+---
+
+# Synopsis
+
+The Analysis on the strom event database was done for 2 major impact
+
+1. Health Impact like - Facalities & Injuries
+    + Tornadoes, Excessive heat, Flash food are top 3 events causing major health distubance
+2. Economic Impack like - Property Damage & Crop Damage
+    + Flash floods, Thunderstroam winds, tornado are top 3 events causing maximum property damage
+    + Drought, floods, River flood are top 3 events causing maximum crop damage
+    
+---
+
+# Data Processing
+
+The analysis was performed on
+[Storm Events Database](http://www.ncdc.noaa.gov/stormevents/ftp.jsp), provided by
+[National Climatic Data Center](http://www.ncdc.noaa.gov/). The data is from a comma-separated-value file available
+[here](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2).
+There is also some documentation of the data available
+[here](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf).
+
+### Step 0) Initialize Code Environment
 
 
 
@@ -62,26 +89,7 @@ library(gridExtra)
 ##     combine
 ```
 
-# Synopsis
-
-The Analysis on the strom event database was done for 2 major impact
-1. Health Impact like - Facalities & Injuries
-    + Tornadoes, Excessive heat, Flash food are top 3 events causing major health distubance
-2. Economic Impack like - Property Damage & Crop Damage
-    + Flash floods, Thunderstroam winds, tornado are top 3 events causing maximum property damage
-    + Drought, floods, River flood are top 3 events causing maximum crop damage
-
-# Data Processing
-
-The analysis was performed on
-[Storm Events Database](http://www.ncdc.noaa.gov/stormevents/ftp.jsp), provided by
-[National Climatic Data Center](http://www.ncdc.noaa.gov/). The data is from a comma-separated-value file available
-[here](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2).
-There is also some documentation of the data available
-[here](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf).
-
-
-## Step 1) Load data
+### Step 1) Load data
 
 ```r
 storm <- read.csv(bzfile("data/repdata-data-StormData.csv.bz2"))
@@ -92,7 +100,7 @@ specific format. For instance, there are events with types `Frost/Freeze`,
 `FROST/FREEZE` and `FROST\\FREEZE` which obviously refer to the same type of
 event.
 
-## Step 2) Get Unique Events
+### Step 2) Get Unique Events
 
 ```r
 event_types <- tolower(storm$EVTYPE)
@@ -106,14 +114,16 @@ processed further to merge event types such as `tstm wind` and `thunderstorm win
 After the cleaning, as expected, the number of unique event types reduce
 significantly. For further analysis, the cleaned event types are used.
 
-### Number of Unique Events found in database are - 874
+## Number of Unique Events found in database are - 874
+
+---
 
 # Top 10 most harmful Events with respect to Population Health
 
 To find the event types that are most harmful to population health, the number
 of casualties are aggregated by the event type.
 
-## Step 3) Get Casualities from FATALITIES, INJURIES column
+### Step 3) Get Casualities from FATALITIES, INJURIES column
 
 ```r
 casualties <- storm %>% select(EVTYPE , FATALITIES, INJURIES) %>% 
@@ -122,7 +132,7 @@ casualties <- storm %>% select(EVTYPE , FATALITIES, INJURIES) %>%
                 arrange(desc(FATALITIES), desc(INJURIES))
 ```
 
-## Step 4) Find top 10 events that caused most death and injury
+### Step 4) Find top 10 events that caused most death and injury
 
 
 ```r
@@ -171,6 +181,8 @@ RIP CURRENT            232
 HIGH WIND             1137
 AVALANCHE              170
 
+---
+
 # Top 10 most harmful Events with respect to Economic Loss
 
 To analyze the impact of weather events on the economy, available property
@@ -181,7 +193,7 @@ In the raw data, the property damage is represented with two fields, a number
 is represented using two fields, `CROPDMG` and `CROPDMGEXP`. The first step in the
 analysis is to calculate the property and crop damage for each event.
 
-## Step 5) Function Call to Transform K,M,B initialis of Dollor into Actual Amount
+### Step 5) Function Call to Transform K,M,B initialis of Dollor into Actual Amount
 
 ```r
 exp_transform <- function(e) {
@@ -204,7 +216,7 @@ exp_transform <- function(e) {
 }
 ```
 
-## Step 6) Transform K,M,B initialis of Dollor into Actual Amount
+### Step 6) Transform K,M,B initialis of Dollor into Actual Amount
 
 ```r
 prop_dmg_exp <- sapply(storm$PROPDMGEXP, FUN=exp_transform)
@@ -213,7 +225,7 @@ crop_dmg_exp <- sapply(storm$CROPDMGEXP, FUN=exp_transform)
 storm$crop_dmg <- storm$CROPDMG * (10 ** crop_dmg_exp)
 ```
 
-## Step 7) Get Economic loss from prop_dmg, crop_dmg column
+### Step 7) Get Economic loss from prop_dmg, crop_dmg column
 
 ```r
 # Compute the economic loss by event type
@@ -223,7 +235,7 @@ economicsLoss <- storm %>% select(EVTYPE , prop_dmg, crop_dmg) %>%
                   arrange(desc(prop_dmg), desc(crop_dmg))
 ```
 
-## Step 8) Find top 10 events that caused most propert and crop damage
+### Step 8) Find top 10 events that caused most propert and crop damage
 
 
 ```r
@@ -274,6 +286,8 @@ HURRICANE/TYPHOON     2607872800
 FLOODING                 8855500
 STORM SURGE                 5000
 HEAVY SNOW             134653100
+
+---
 
 # Conclusion (Communicating Results using Plots)
 
@@ -348,3 +362,5 @@ separate values and should be merged for more accurate data-driven conclusions.
 The most severe weather event in terms of crop damage is the drought. In the last
 half century, the drought has caused more than 10 billion dollars damage. Other
 severe crop-damage-causing event types are floods and hails.
+
+
